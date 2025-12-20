@@ -6,16 +6,22 @@ Remi is a simple Reminder bot designed to be used in any Discord server. It is c
 
 ## Usage
 
+You must create a `.env` file in the cloned repository that contains the following:
+
 ```
-git clone <repository URL>
-cd reminder-bot
+DISCORD_TOKEN=<your discord token>
+```
+
+Once that is present, you may now build & run the bot.
+
+```
 go build
 ./reminder-bot
 ```
 
-You should see output that says `* Bot is now running. Press CTRL+C to exit.`
+You should see output that says `* Bot is now running. Press CTRL+C to exit.` in your terminal window.
 
-Enjoy
+Enjoy!
 
 ## Notes
 
