@@ -4,10 +4,19 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 
 	disgo "github.com/bwmarrin/discordgo"
 	env "github.com/joho/godotenv"
 )
+
+type Reminder struct {
+	Name	string
+	Id	int
+}
+
+var _master_id = 0
+var _reminders = make([]Reminder, 0)
 
 func init() {
 
@@ -19,6 +28,12 @@ func init() {
 }
 
 func main() {
+
+	/* --- TEST --- */
+	_reminders = append(_reminders, Reminder{"Reminder #1", _master_id})
+	_master_id = _master_id + 1
+	_reminders = append(_reminders, Reminder{"Reminder #2", _master_id})
+	_master_id = _master_id + 1
 
 	// Get the bot token from environment variable
 	Token := os.Getenv("DISCORD_TOKEN")
@@ -67,4 +82,41 @@ func messageCreate(s *disgo.Session, m *disgo.MessageCreate) {
 		*r-ping*	: Check bot connectivity`
 		s.ChannelMessageSend(m.ChannelID, usage)
 	}
-}
+
+	if m.Content == "r-embed" {
+		embed := &disgo.MessageEmbed{
+			Title:	"Sample Embed",
+			Description:	"This is an embedded message!",
+			Color:	0x00ff00, // Green
+		}
+		s.ChannelMessageSendEmbed(m.ChannelID, embed)
+	}
+
+	if m.Content == "r-printAll" {
+		reminderString := "* "
+		for i := 0; i < len(_reminders); i++ {
+			if i != len(_reminders)-1 {
+				reminderString = reminderString + _reminders[i].Name + "\n* "
+			} else {
+				reminderString = reminderString + _reminders[i].Name + "\n"
+			}
+		}
+		embed := &disgo.MessageEmbed{
+			Title: " Scheduled Reminders",
+			Description: reminderString,
+			Color: 0x00ff00, // Green
+		}
+		s.ChannelMessageSendEmbed(m.ChannelID, embed)
+	}
+
+	if strings.Contains(m.Content, "r-schedule") {
+		splitMsg := strings.Split(m.Content, " ")
+
+		newReminder := Reminder{splitMsg[1], _master_id}
+		_master_id = _master_id+1
+
+		_reminders = append(_reminders, newReminder)
+
+		s.ChannelMessageSend(m.ChannelID, "Added new reminder for "+splitMsg[1])
+	}
+} 
